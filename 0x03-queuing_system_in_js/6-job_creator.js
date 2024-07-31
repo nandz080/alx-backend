@@ -9,6 +9,7 @@ const jobData = {
     message: 'Hello, this is a notification!'
 };
 
+
 // Create a job in the queue
 
 const job = queue.create('push_notification_code', jobData)
@@ -18,8 +19,8 @@ const job = queue.create('push_notification_code', jobData)
         }
     });
 
-// Event handlers
 
+// Event handlers
 job.on('complete', () => {
     console.log('Notification job completed');
 });
