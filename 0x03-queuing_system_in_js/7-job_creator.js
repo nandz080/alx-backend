@@ -1,6 +1,7 @@
 import kue from 'kue';
-import {progress} from "mocha/lib/reporters";
 
+import {progress} from "mocha/lib/reporters";
+//jobs
 const jobs = [
     {
         phoneNumber: '4153518780',
@@ -48,12 +49,15 @@ const jobs = [
     }
 ];
 
+//queue
+
 const queue = kue.createQueue();
 
 jobs.forEach((data) => {
     const pushCode = queue.create('push_notification_code_2', data).save((err) => {
         if (!err) console.log(`Notification job created: ${pushCode.id}`);
     });
+
 
     pushCode.on('complete', () => {
         console.log(`Notification job ${pushCode.id} completed`);
