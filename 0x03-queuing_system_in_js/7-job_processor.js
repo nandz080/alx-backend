@@ -2,7 +2,11 @@ import kue from 'kue';
 
 const queue = kue.createQueue();
 
+//blacklisted phone numbers
 const blacklisted = ['4153518780', '4153518781'];
+
+//sendNotification function
+
 function sendNotification(phoneNumber, message, djob, done) {
     if (blacklisted.includes(djob.data.phoneNumber)) {
         return done(new Error(`Phone number ${phoneNumber} is blacklisted`));
