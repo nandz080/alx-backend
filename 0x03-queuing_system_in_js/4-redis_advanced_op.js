@@ -4,8 +4,9 @@ import redis from 'redis';
 const client = redis.createClient();
 
 // Connect to Redis server
-client.on('connect', () => {
-  console.log('Redis client connected to the server');
+client
+	.on('connect', () => {
+  	console.log('Redis client connected to the server');
 });
 
 // Handle Redis connection errors
