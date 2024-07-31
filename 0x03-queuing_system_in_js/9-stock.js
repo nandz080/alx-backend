@@ -1,13 +1,19 @@
 import express from 'express';
+
 import redis from 'redis';
+
 import util from 'util';
 
+//redis client
 const client = redis.createClient();
+
 client.on('connect', () => {
-}).on('error', (err) => {
+})
+.on('error', (err) => {
     console.log(`Redis client not connected to the server: ${err}`);
 });
 
+//product list
 const listProducts = [
     {
         itemId: '1',
@@ -35,6 +41,8 @@ const listProducts = [
     },
 ];
 
+//function that returns item id
+
 function getItemById(itemId) {
     let main;
     listProducts.forEach((item) => {
@@ -45,6 +53,8 @@ function getItemById(itemId) {
     return main;
 }
 
+// function that reserves stock
+
 function reserveStockById(itemId, stock) {
     client.hset('item', itemId, stock);
 }
@@ -54,11 +64,13 @@ async function getCurrentReservedStockById(itemId) {
     return getAsync('item', itemId);
 }
 
+
 const app = express();
 
 app.get('/list_products', (req, res) => {
     res.json(listProducts).end();
 });
+
 
 app.get('/list_products/:itemId', async (req, res) => {
     const field = req.params.itemId;
@@ -69,12 +81,15 @@ app.get('/list_products/:itemId', async (req, res) => {
         res.json(Product).end();
     } else {
         res.json({status: 'Product not found'}).end();
+
     }
 });
 
 app.get('/reserve_product/:itemId', async (req, res) => {
     const field = req.params.itemId;
+    
     const Product = getItemById(field);
+    
     if (Product) {
         if (Product.initialAvailableQuantity > 0) {
             reserveStockById(field, Product.initialAvailableQuantity);
