@@ -1,21 +1,28 @@
 import express from 'express';
+
 import redis from 'redis';
+
 import util from 'util';
+
 import kue from 'kue';
 
 const client = redis.createClient();
+
 const reserveSeatAsync = util.promisify(client.set).bind(client);
+
 const getCurrentAvailableSeatsAsync = util.promisify(client.get).bind(client);
 
 const queue = kue.createQueue();
 
 const app = express();
+
 const PORT = 1245;
 
 let reservationEnabled = true;
 let numberOfAvailableSeats = 50;
 
 // Reserve a seat
+
 async function reserveSeat(number) {
   try {
     await reserveSeatAsync('available_seats', number);
@@ -25,6 +32,7 @@ async function reserveSeat(number) {
 }
 
 // Get current available seats
+
 async function getCurrentAvailableSeats() {
   try {
     return await getCurrentAvailableSeatsAsync('available_seats');
@@ -34,17 +42,21 @@ async function getCurrentAvailableSeats() {
 }
 
 // Initialize available seats
+
 reserveSeat(numberOfAvailableSeats);
 
 // Route to get available seats
+
 app.get('/available_seats', async (req, res) => {
   const response = {
     numberOfAvailableSeats: await getCurrentAvailableSeats(),
   };
   res.json(response);
+
 });
 
 // Route to reserve a seat
+
 app.get('/reserve_seat', async (req, res) => {
   if (!reservationEnabled) {
     res.json({ status: 'Reservation are blocked' });
@@ -56,16 +68,20 @@ app.get('/reserve_seat', async (req, res) => {
     job.on('complete', () => {
       console.log(`Seat reservation job ${job.id} completed`);
     });
+
     job.on('failed', (errorMessage) => {
       console.log(`Seat reservation job ${job.id} failed: ${errorMessage}`);
     });
+
     res.json({ status: 'Reservation in process' });
   } catch (error) {
     res.json({ status: 'Reservation failed' });
   }
+
 });
 
 // Route to process the queue and decrease available seats
+
 app.get('/process', async (req, res) => {
   try {
     const availableSeats = await getCurrentAvailableSeats();
@@ -85,6 +101,7 @@ app.get('/process', async (req, res) => {
   } catch (error) {
     res.json({ status: 'Queue processing failed' });
   }
+
 });
 
 app.listen(PORT, () => {
